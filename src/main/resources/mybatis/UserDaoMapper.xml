@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rishiqing.midware.user.dao.UserDao">
+    <resultMap id="userMap" type="com.rishiqing.midware.user.model.User">
+        <id property="id" column="id"/>
+        <result property="version" column="version" />
+        <result property="accountExpired" column="account_expired" />
+        <result property="accountLocked" column="account_locked" />
+        <result property="enabled" column="enabled" />
+        <result property="password" column="password" />
+        <result property="passwordExpired" column="password_expired" />
+        <result property="username" column="username" />
+        <result property="realName" column="real_name" />
+    </resultMap>
+    <insert id="saveUser"
+            parameterType="com.rishiqing.midware.user.model.User"
+            flushCache="true"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        INSERT INTO `user`
+        (version, account_expired, account_locked, enabled, password, password_expired, username, real_name)
+        VALUES
+        (#{version}, #{accountExpired}, #{accountLocked},#{enabled},#{password},#{passwordExpired},#{username},#{realName})
+        ON DUPLICATE KEY UPDATE
+        version = version + 1,
+        username = #{username},
+        password = #{password},
+        password_expired = #{passwordExpired},
+        enabled = #{enabled},
+        account_expired = #{accountExpired},
+        account_locked = #{accountLocked},
+        real_name = #{realName}
+    </insert>
+    <delete id="deleteUser" parameterType="com.rishiqing.midware.user.model.User">
+        DELETE FROM `user` where id = #{id}
+    </delete>
+    <update id="updateUser"
+            parameterType="com.rishiqing.midware.user.model.User"
+            flushCache="true"
+            keyProperty="id">
+        UPDATE `user` SET
+        version = version + 1,
+        username = #{username},
+        password = #{password},
+        password_expired = #{passwordExpired},
+        enabled = #{enabled},
+        account_expired = #{accountExpired},
+        account_locked = #{accountLocked},
+        real_name = #{realName}
+        WHERE id = #{id}
+    </update>
+    <select id="getUserList" resultMap="userMap">
+        SELECT * FROM `user`
+    </select>
+    <select id="getUserById" resultMap="userMap">
+        SELECT * FROM `user` WHERE id = #{id}
+    </select>
+
+    <!--用户角色相关-->
+    <resultMap id="userRolesMap" type="com.rishiqing.midware.user.model.User" extends="userMap">
+        <collection property="roleList" resultMap="com.rishiqing.midware.user.dao.RoleDao.roleMap" columnPrefix="role_" />
+    </resultMap>
+    <select id="getUserRoleList" resultMap="userRolesMap" parameterType="com.rishiqing.midware.user.model.User">
+        SELECT u.*,
+        r.id AS role_id,
+        r.version as role_version,
+        r.authority as role_authority
+        FROM `user` u
+        LEFT JOIN user_role ur ON u.id = ur.user_id
+        LEFT JOIN role r ON ur.role_id = r.id
+        WHERE u.id = #{id}
+    </select>
+    <insert id="addUserRole" parameterType="com.rishiqing.midware.user.model.UserRole">
+        INSERT INTO user_role (user_id, role_id)
+        VALUES (#{user.id}, #{role.id})
+    </insert>
+    <delete id="removeUserRole" parameterType="com.rishiqing.midware.user.model.UserRole">
+        DELETE FROM user_role
+        <where>
+            <if test="user">user_id = #{user.id}</if>
+            <if test="role"> and role_id = #{role.id}</if>
+        </where>
+    </delete>
+
+    <!--用户团队相关-->
+    <resultMap id="userTeamMap" type="com.rishiqing.midware.user.model.User" extends="userMap">
+        <association property="team" resultMap="com.rishiqing.midware.user.dao.TeamDao.teamMap" columnPrefix="team_" />
+    </resultMap>
+    <select id="getUserTeam" resultMap="userTeamMap">
+        SELECT u.*,
+        t.id AS team_id,
+        t.version AS team_version,
+        t.name AS team_name,
+        t.date_created AS team_date_created,
+        t.last_updated AS team_last_updated
+        FROM `user` u
+        LEFT JOIN team t ON u.team_id = t.id
+        WHERE u.id = #{id}
+    </select>
+    <update id="updateUserSetTeam"
+            flushCache="true"
+            keyProperty="id">
+    UPDATE `user` SET
+    version = version + 1,
+    <if test="team == null">
+        team_id = NULL
+    </if>
+    <if test="team != null">
+        team_id = #{team.id}
+    </if>
+    WHERE id = #{id}
+    </update>
+
+    <!--super user相关-->
+    <resultMap id="userSuperUserMap" type="com.rishiqing.midware.user.model.User" extends="userMap">
+        <association property="superUser" resultMap="com.rishiqing.midware.user.dao.SuperUserDao.superUserMap" columnPrefix="su_" />
+    </resultMap>
+    <select id="getUserListBySuperUser" resultMap="userMap">
+        SELECT * FROM `user` WHERE super_user_id = #{id}
+    </select>
+    <select id="getUserSuperUser" resultMap="userSuperUserMap">
+        SELECT u.*,
+        su.id AS su_id,
+        su.version AS su_version
+        FROM `user` u
+        LEFT JOIN super_user su ON u.super_user_id = su.id
+        WHERE u.id = #{id}
+    </select>
+    <update id="updateUserSetSuperUser"
+            flushCache="true"
+            keyProperty="id">
+        UPDATE `user` SET
+        version = version + 1,
+        <if test="superUser == null">
+            super_user_id = NULL
+        </if>
+        <if test="superUser != null">
+            super_user_id = #{superUser.id}
+        </if>
+        WHERE id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rishiqing.midware.user.dao.TeamDao">
+    <resultMap id="teamMap" type="com.rishiqing.midware.user.model.Team">
+        <id property="id" column="id"/>
+        <result property="version" column="version" />
+        <result property="name" column="name" />
+        <result property="dateCreated" column="date_created" />
+        <result property="lastUpdated" column="last_updated" />
+    </resultMap>
+    <insert
+            id="saveTeam"
+            parameterType="com.rishiqing.midware.user.model.Team"
+            flushCache="true"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        INSERT INTO `team`
+        (version, `name`, date_created, last_updated)
+        VALUES
+        (#{version}, #{name}, NOW(),NOW())
+        ON DUPLICATE KEY UPDATE
+        version = version + 1,
+        `name` = #{name},
+        last_updated = NOW()
+    </insert>
+    <delete id="deleteTeam" parameterType="com.rishiqing.midware.user.model.Team">
+        DELETE FROM `team` where id = #{id}
+    </delete>
+    <update id="updateTeam"
+            parameterType="com.rishiqing.midware.user.model.Team"
+            flushCache="true"
+            keyProperty="id">
+        UPDATE `team` SET
+        version = version + 1,
+        `name` = #{name},
+        last_updated = NOW()
+        WHERE id = #{id}
+    </update>
+    <select id="getTeamList" resultMap="teamMap">
+        SELECT * FROM `team`
+    </select>
+    <select id="getTeamById" resultMap="teamMap">
+        SELECT * FROM `team` WHERE id = #{id}
+    </select>
+
+    <!--团队用户关联-->
+    <resultMap id="teamUsersMap" type="com.rishiqing.midware.user.model.Team" extends="teamMap">
+        <collection property="userList" resultMap="com.rishiqing.midware.user.dao.UserDao.userMap" columnPrefix="user_"/>
+    </resultMap>
+    <select id="getTeamUserList" resultMap="teamUsersMap">
+        SELECT t.*,
+        u.id AS user_id,
+        u.version AS user_version,
+        u.account_expired AS user_account_expired,
+        u.account_locked AS user_account_locked,
+        u.enabled AS user_enabled,
+        u.password AS user_password,
+        u.password_expired AS user_password_expired,
+        u.username AS user_username,
+        u.real_name AS  user_real_name
+        FROM `team` t
+        LEFT JOIN `user` u ON t.id = u.team_id
+        WHERE t.id = #{id}
+    </select>
+    <insert id="addTeamUser"
+            parameterType="com.rishiqing.midware.user.model.User"
+            flushCache="true"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        INSERT INTO `user`
+        (version, account_expired, account_locked, enabled, password, password_expired, username, real_name, team_id)
+        VALUES
+        (#{version}, #{accountExpired}, #{accountLocked},#{enabled},#{password},#{passwordExpired},#{username},#{realName}, #{team.id})
+        ON DUPLICATE KEY UPDATE
+        version = version + 1,
+        username = #{username},
+        password = #{password},
+        password_expired = #{passwordExpired},
+        enabled = #{enabled},
+        account_expired = #{accountExpired},
+        account_locked = #{accountLocked},
+        real_name = #{realName},
+        team_id = #{team.id}
+    </insert>
+
+</mapper>

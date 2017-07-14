@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rishiqing.midware.user.dao.SuperUserDao">
+    <resultMap id="superUserMap" type="com.rishiqing.midware.user.model.SuperUser">
+        <id property="id" column="id"/>
+        <result property="version" column="version" />
+        <result property="dateCreated" column="date_created" />
+        <result property="lastUpdated" column="last_updated" />
+    </resultMap>
+    <insert id="saveSuperUser"
+            parameterType="com.rishiqing.midware.user.model.SuperUser"
+            flushCache="true"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        INSERT INTO `super_user`
+        (version, main_user_id, default_login_user_id, date_created, last_updated)
+        VALUES
+        (#{version}, #{mainUser.id}, #{defaultLoginUser.id}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+        version = version + 1,
+        main_user_id = #{mainUser.id},
+        default_login_user_id = #{defaultLoginUser.id},
+        last_updated = NOW()
+    </insert>
+    <delete id="deleteSuperUser" parameterType="com.rishiqing.midware.user.model.SuperUser">
+        DELETE FROM `super_user` where id = #{id}
+    </delete>
+    <update id="updateSuperUser"
+            parameterType="com.rishiqing.midware.user.model.SuperUser"
+            flushCache="true"
+            keyProperty="id">
+        UPDATE `super_user` SET
+        version = version + 1,
+        main_user_id = #{mainUser.id},
+        default_login_user_id = #{defaultLoginUser.id},
+        last_updated = NOW()
+        WHERE id = #{id}
+    </update>
+    <select id="getSuperUserList" resultMap="superUserMap">
+        SELECT * FROM `super_user`
+    </select>
+    <select id="getSuperUserById" resultMap="superUserMap">
+        SELECT * FROM `super_user` WHERE id = #{id}
+    </select>
+
+    <!--superUser与user的关联-->
+    <resultMap id="superUserUserMap" type="com.rishiqing.midware.user.model.SuperUser" extends="superUserMap">
+        <collection property="userList" resultMap="com.rishiqing.midware.user.dao.UserDao.userMap" columnPrefix="u_"/>
+    </resultMap>
+    <select id="getSuperUserUserList" resultMap="superUserUserMap">
+        SELECT su.*,
+        u.id AS u_id,
+        u.version AS u_version,
+        u.account_expired AS u_account_expired,
+        u.account_locked AS u_account_locked,
+        u.enabled AS u_enabled,
+        u.password AS u_password,
+        u.password_expired AS u_password_expired,
+        u.username AS u_username,
+        u.real_name AS  u_real_name
+        FROM `super_user` su
+        LEFT JOIN `user` u ON su.id = u.super_user_id
+        WHERE su.id = #{id}
+    </select>
+    <insert id="addSuperUserUser"
+            parameterType="com.rishiqing.midware.user.model.User"
+            flushCache="true"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        INSERT INTO `user`
+        (version, account_expired, account_locked, enabled, password, password_expired, username, real_name, super_user_id)
+        VALUES
+        (#{version}, #{accountExpired}, #{accountLocked},#{enabled},#{password},#{passwordExpired},#{username},#{realName}, #{superUser.id})
+        ON DUPLICATE KEY UPDATE
+        version = version + 1,
+        username = #{username},
+        password = #{password},
+        password_expired = #{passwordExpired},
+        enabled = #{enabled},
+        account_expired = #{accountExpired},
+        account_locked = #{accountLocked},
+        real_name = #{realName},
+        super_user_id = #{superUser.id}
+    </insert>
+
+    <!--main user相关-->
+    <resultMap id="superUserMainUserMap" type="com.rishiqing.midware.user.model.SuperUser" extends="superUserMap">
+        <association property="mainUser" resultMap="com.rishiqing.midware.user.dao.UserDao.userMap" columnPrefix="u_" />
+    </resultMap>
+    <select id="getSuperUserMainUser" resultMap="superUserMainUserMap">
+        SELECT su.*,
+        u.id AS u_id,
+        u.version AS u_version,
+        u.account_expired AS u_account_expired,
+        u.account_locked AS u_account_locked,
+        u.enabled AS u_enabled,
+        u.password AS u_password,
+        u.password_expired AS u_password_expired,
+        u.username AS u_username,
+        u.real_name AS u_real_name
+        FROM `super_user` AS su
+        LEFT JOIN `user` AS u on u.id = su.main_user_id
+        WHERE su.id = #{id}
+    </select>
+
+    <!--default login user相关-->
+    <resultMap id="superUserDefaultLoginUserMap" type="com.rishiqing.midware.user.model.SuperUser" extends="superUserMap">
+        <association property="defaultLoginUser" resultMap="com.rishiqing.midware.user.dao.UserDao.userMap" columnPrefix="u_" />
+    </resultMap>
+    <select id="getSuperUserDefaultLoginUser" resultMap="superUserDefaultLoginUserMap">
+        SELECT su.*,
+        u.id AS u_id,
+        u.version AS u_version,
+        u.account_expired AS u_account_expired,
+        u.account_locked AS u_account_locked,
+        u.enabled AS u_enabled,
+        u.password AS u_password,
+        u.password_expired AS u_password_expired,
+        u.username AS u_username,
+        u.real_name AS u_real_name
+        FROM `super_user` AS su
+        LEFT JOIN `user` AS u on u.id = su.default_login_user_id
+        WHERE su.id = #{id}
+    </select>
+
+</mapper>
