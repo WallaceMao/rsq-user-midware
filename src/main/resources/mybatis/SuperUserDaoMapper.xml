@@ -125,4 +125,21 @@
         WHERE su.id = #{id}
     </select>
 
+    <!--超用户-加入团队历史相关-->
+    <resultMap id="superUserUserJoinTeamHistoryMap" type="com.rishiqing.midware.user.model.SuperUser"
+               extends="superUserMap">
+        <collection property="userJoinTeamHistoryList"
+                    resultMap="com.rishiqing.midware.user.dao.UserJoinTeamHistoryDao.userJoinTeamHistoryMap"
+                    columnPrefix="ujth_" />
+    </resultMap>
+    <select id="getSuperUserUserJoinTeamHistoryList" resultMap="superUserUserJoinTeamHistoryMap">
+        SELECT u.*,
+        ujth.id AS ujth_id,
+        ujth.join_time AS ujth_join_time,
+        ujth.leave_time AS ujth_leave_time
+        FROM `super_user` u
+        LEFT JOIN user_join_team_history ujth ON u.id = ujth.super_user_id
+        WHERE u.id = #{id}
+    </select>
+
 </mapper>

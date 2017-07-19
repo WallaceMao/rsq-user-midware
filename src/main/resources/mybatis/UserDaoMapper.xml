@@ -115,7 +115,8 @@
 
     <!--super user相关-->
     <resultMap id="userSuperUserMap" type="com.rishiqing.midware.user.model.User" extends="userMap">
-        <association property="superUser" resultMap="com.rishiqing.midware.user.dao.SuperUserDao.superUserMap" columnPrefix="su_" />
+        <association property="superUser" resultMap="com.rishiqing.midware.user.dao.SuperUserDao.superUserMap"
+                     columnPrefix="su_" />
     </resultMap>
     <select id="getUserListBySuperUser" resultMap="userMap">
         SELECT * FROM `user` WHERE super_user_id = #{id}
@@ -141,4 +142,20 @@
         </if>
         WHERE id = #{id}
     </update>
+
+    <!--用户-加入团队历史相关-->
+    <resultMap id="userUserJoinTeamHistoryMap" type="com.rishiqing.midware.user.model.User" extends="userMap">
+        <collection property="userJoinTeamHistoryList"
+                    resultMap="com.rishiqing.midware.user.dao.UserJoinTeamHistoryDao.userJoinTeamHistoryMap"
+                    columnPrefix="ujth_" />
+    </resultMap>
+    <select id="getUserUserJoinTeamHistoryList" resultMap="userUserJoinTeamHistoryMap">
+        SELECT u.*,
+        ujth.id AS ujth_id,
+        ujth.join_time AS ujth_join_time,
+        ujth.leave_time AS ujth_leave_time
+        FROM `user` u
+        LEFT JOIN user_join_team_history ujth ON u.id = ujth.user_id
+        WHERE u.id = #{id}
+    </select>
 </mapper>

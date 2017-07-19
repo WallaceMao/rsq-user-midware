@@ -23,6 +23,7 @@
         <mapper resource="mybatis/UserDaoMapper.xml"/>
         <mapper resource="mybatis/RoleDaoMapper.xml"/>
         <mapper resource="mybatis/TeamDaoMapper.xml"/>
+        <mapper resource="mybatis/UserJoinTeamHistoryDaoMapper.xml"/>
         <mapper resource="mybatis/DatabaseDaoMapper.xml"/>
     </mappers>
 </configuration>

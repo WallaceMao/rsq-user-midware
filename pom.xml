@@ -85,6 +85,7 @@
                 <!--</executions>-->
             </plugin>
             <plugin>
+                <!--部署到github上面-->
                 <groupId>com.github.github</groupId>
                 <artifactId>site-maven-plugin</artifactId>
                 <version>0.12</version>

@@ -25,6 +25,21 @@ ALTER TABLE `super_user`
 ADD COLUMN `date_created`  datetime NOT NULL AFTER `default_login_user_id`,
 ADD COLUMN `last_updated`  datetime NOT NULL AFTER `date_created`;
 
+
+CREATE TABLE `user_join_team_history` (
+`id`  bigint NOT NULL AUTO_INCREMENT ,
+`join_time`  datetime NOT NULL ,
+`leave_time`  datetime NULL ,
+`user_id`  bigint NOT NULL ,
+`super_user_id`  bigint NOT NULL ,
+`team_id`  bigint NOT NULL ,
+PRIMARY KEY (`id`),
+CONSTRAINT `fk_join_history_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+CONSTRAINT `fk_join_history_super_user` FOREIGN KEY (`super_user_id`) REFERENCES `super_user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+CONSTRAINT `fk_join_history_team` FOREIGN KEY (`team_id`) REFERENCES `team` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+);
+
+
 # MODEL层设计说明
 
 ## model的基本属性

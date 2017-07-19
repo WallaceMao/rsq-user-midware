@@ -17,6 +17,8 @@ public class Team {
 
     private List<User> userList;
 
+    private List<UserJoinTeamHistory> userJoinTeamHistoryList;
+
     public Team() {
     }
 
@@ -79,6 +81,14 @@ public class Team {
 
     public void setUserList(List<User> userList) {
         this.userList = userList;
+    }
+
+    public List<UserJoinTeamHistory> getUserJoinTeamHistoryList() {
+        return userJoinTeamHistoryList;
+    }
+
+    public void setUserJoinTeamHistoryList(List<UserJoinTeamHistory> userJoinTeamHistoryList) {
+        this.userJoinTeamHistoryList = userJoinTeamHistoryList;
     }
 
     @Override

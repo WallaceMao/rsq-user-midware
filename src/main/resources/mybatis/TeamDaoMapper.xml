@@ -85,4 +85,21 @@
         team_id = #{team.id}
     </insert>
 
+    <!--团队-加入团队历史相关-->
+    <resultMap id="teamUserJoinTeamHistoryMap" type="com.rishiqing.midware.user.model.Team"
+               extends="teamMap">
+        <collection property="userJoinTeamHistoryList"
+                    resultMap="com.rishiqing.midware.user.dao.UserJoinTeamHistoryDao.userJoinTeamHistoryMap"
+                    columnPrefix="ujth_" />
+    </resultMap>
+    <select id="getTeamUserJoinTeamHistoryList" resultMap="teamUserJoinTeamHistoryMap">
+        SELECT u.*,
+        ujth.id AS ujth_id,
+        ujth.join_time AS ujth_join_time,
+        ujth.leave_time AS ujth_leave_time
+        FROM `team` u
+        LEFT JOIN user_join_team_history ujth ON u.id = ujth.team_id
+        WHERE u.id = #{id}
+    </select>
+
 </mapper>

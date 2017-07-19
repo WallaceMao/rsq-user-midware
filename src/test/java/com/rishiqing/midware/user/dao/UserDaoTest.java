@@ -161,4 +161,5 @@ public class UserDaoTest extends BaseDaoTest {
         assertNotNull(dbUser);
         assertEquals(dbUser.toString(), user1.toString());
     }
+
 }

@@ -26,4 +26,7 @@ public interface SuperUserDao {
     public SuperUser getSuperUserMainUser(SuperUser superUser);
 
     public SuperUser getSuperUserDefaultLoginUser(SuperUser superUser);
+
+    public SuperUser getSuperUserUserJoinTeamHistoryList(SuperUser su);
+
 }

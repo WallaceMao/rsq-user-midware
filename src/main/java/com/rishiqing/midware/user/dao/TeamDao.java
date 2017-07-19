@@ -23,4 +23,6 @@ public interface TeamDao {
     public long addTeamUser(User user);
 
     public Team getTeamUserList(Team team);
+
+    public Team getTeamUserJoinTeamHistoryList(Team team);
 }

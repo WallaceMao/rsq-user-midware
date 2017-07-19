@@ -17,11 +17,13 @@ import org.junit.runners.Suite;
         UserTeamDaoTest.class,
         UserSuperUserDaoTest.class,
         SuperUserDaoTest.class,
+        UserJoinTeamHistoryDaoTest.class,
         RoleTest.class,
         TeamTest.class,
         UserRoleTest.class,
         UserTest.class,
-        SuperUserTest.class
+        SuperUserTest.class,
+        UserJoinTeamHistoryTest.class
 })
 public class ModelAndDaoTestSuite {
 }

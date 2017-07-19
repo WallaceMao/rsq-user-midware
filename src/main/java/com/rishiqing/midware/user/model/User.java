@@ -25,6 +25,8 @@ public class User {
     private Team team;
     private SuperUser superUser;
 
+    private List<UserJoinTeamHistory> userJoinTeamHistoryList;
+
     public User() {
     }
 
@@ -139,6 +141,14 @@ public class User {
 
     public void setSuperUser(SuperUser superUser) {
         this.superUser = superUser;
+    }
+
+    public List<UserJoinTeamHistory> getUserJoinTeamHistoryList() {
+        return userJoinTeamHistoryList;
+    }
+
+    public void setUserJoinTeamHistoryList(List<UserJoinTeamHistory> userJoinTeamHistoryList) {
+        this.userJoinTeamHistoryList = userJoinTeamHistoryList;
     }
 
     @Override

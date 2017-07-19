@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rishiqing.midware.user.dao.UserJoinTeamHistoryDao">
+    <resultMap id="userJoinTeamHistoryMap" type="com.rishiqing.midware.user.model.UserJoinTeamHistory">
+        <id property="id" column="id"/>
+        <result property="joinTime" column="join_time" />
+        <result property="leaveTime" column="leave_time" />
+    </resultMap>
+    <insert
+            id="saveUserJoinTeamHistory"
+            parameterType="com.rishiqing.midware.user.model.UserJoinTeamHistory"
+            flushCache="true"
+            keyProperty="id"
+            useGeneratedKeys="true">
+        INSERT INTO `user_join_team_history`
+        (join_time, leave_time, user_id, super_user_id, team_id)
+        VALUES
+        (#{joinTime}, #{leaveTime}, #{user.id}, #{superUser.id}, #{team.id})
+        ON DUPLICATE KEY UPDATE
+        join_time = #{joinTime},
+        leave_time = #{leaveTime}
+    </insert>
+    <delete id="deleteUserJoinTeamHistory" parameterType="com.rishiqing.midware.user.model.UserJoinTeamHistory">
+        DELETE FROM `user_join_team_history` where id = #{id}
+    </delete>
+    <update id="updateUserJoinTeamHistory"
+            parameterType="com.rishiqing.midware.user.model.UserJoinTeamHistory"
+            flushCache="true"
+            keyProperty="id">
+        UPDATE `user_join_team_history` SET
+        join_time = #{joinTime},
+        leave_time = #{leaveTime}
+        WHERE id = #{id}
+    </update>
+    <select id="getUserJoinTeamHistoryList" resultMap="userJoinTeamHistoryMap">
+        SELECT * FROM `user_join_team_history`
+    </select>
+    <select id="getUserJoinTeamHistoryById" resultMap="userJoinTeamHistoryMap">
+        SELECT * FROM `user_join_team_history` WHERE id = #{id}
+    </select>
+
+    <!--用户关联-->
+    <resultMap id="userJoinTeamHistoryUserMap"
+               type="com.rishiqing.midware.user.model.UserJoinTeamHistory"
+               extends="userJoinTeamHistoryMap">
+        <association property="user"
+                     resultMap="com.rishiqing.midware.user.dao.UserDao.userMap"
+                     columnPrefix="user_"/>
+    </resultMap>
+    <select id="getUserJoinTeamHistoryUser" resultMap="userJoinTeamHistoryUserMap">
+        SELECT t.*,
+        u.id AS user_id,
+        u.version AS user_version,
+        u.account_expired AS user_account_expired,
+        u.account_locked AS user_account_locked,
+        u.enabled AS user_enabled,
+        u.password AS user_password,
+        u.password_expired AS user_password_expired,
+        u.username AS user_username,
+        u.real_name AS  user_real_name
+        FROM `user_join_team_history` t
+        LEFT JOIN `user` u ON t.user_id = u.id
+        WHERE t.id = #{id}
+    </select>
+
+    <!--超用户关联-->
+    <resultMap id="superUserJoinTeamHistoryUserMap"
+               type="com.rishiqing.midware.user.model.UserJoinTeamHistory"
+               extends="userJoinTeamHistoryMap">
+        <association property="superUser"
+                     resultMap="com.rishiqing.midware.user.dao.SuperUserDao.superUserMap"
+                     columnPrefix="su_"/>
+    </resultMap>
+    <select id="getUserJoinTeamHistorySuperUser" resultMap="superUserJoinTeamHistoryUserMap">
+        SELECT t.*,
+        su.id AS su_id,
+        su.version AS su_version
+        FROM `user_join_team_history` t
+        LEFT JOIN `super_user` su ON t.super_user_id = su.id
+        WHERE t.id = #{id}
+    </select>
+
+    <!--团队关联-->
+    <resultMap id="teamJoinTeamHistoryUserMap"
+               type="com.rishiqing.midware.user.model.UserJoinTeamHistory"
+               extends="userJoinTeamHistoryMap">
+        <association property="team"
+                     resultMap="com.rishiqing.midware.user.dao.TeamDao.teamMap"
+                     columnPrefix="team_"/>
+    </resultMap>
+    <select id="getUserJoinTeamHistoryTeam" resultMap="teamJoinTeamHistoryUserMap">
+        SELECT ujth.*,
+        t.id AS team_id,
+        t.version AS team_version,
+        t.name AS team_name,
+        t.date_created AS team_date_created,
+        t.last_updated AS team_last_updated
+        FROM `user_join_team_history` ujth
+        LEFT JOIN `team` t ON ujth.team_id = t.id
+        WHERE ujth.id = #{id}
+    </select>
+
+</mapper>

@@ -67,4 +67,11 @@ public interface UserDao {
      */
     public List<User> getUserListBySuperUser(SuperUser superUser);
 
+
+    /**
+     * 根据team获取用户加入团队历史列表
+     * @param user
+     * @return
+     */
+    public User getUserUserJoinTeamHistoryList(User user);
 }
